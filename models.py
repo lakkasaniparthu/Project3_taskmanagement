@@ -45,7 +45,7 @@ class Project(db.Model):
         nullable=False,
     )
     project_name = db.Column(db.String(150), nullable=False)
-    status = db.Column(db.String(30), nullable=False, default="Planning")
+    status = db.Column(db.String(30), nullable=False, default="Not Started")
     start_date = db.Column(db.Date)
     due_date = db.Column(db.Date)
     created_at = db.Column(db.DateTime, nullable=False, server_default=db.func.now())

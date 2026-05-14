@@ -7,7 +7,7 @@ INSERT INTO users (full_name, email) VALUES
 
 INSERT INTO projects (user_id, project_name, status, start_date, due_date) VALUES
 (1, 'Website Redesign', 'In Progress', '2026-05-01', '2026-06-15'),
-(1, 'Client Portal', 'Planning', '2026-05-20', '2026-07-10'),
+(1, 'Client Portal', 'Not Started', '2026-05-20', '2026-07-10'),
 (2, 'Mobile App Launch', 'In Progress', '2026-04-15', '2026-06-30');
 
 INSERT INTO tasks (

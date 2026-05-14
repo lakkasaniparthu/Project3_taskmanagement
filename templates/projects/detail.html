@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}{{ project.project_name }} - Project Management App{% endblock %}
+
+{% block content %}
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h1 class="h2 mb-1">{{ project.project_name }}</h1>
+      <p class="text-muted mb-0">{{ project.status }}</p>
+    </div>
+    <div class="d-flex gap-2">
+      <a class="btn btn-outline-secondary" href="{{ url_for('projects_list') }}">Back</a>
+      <a class="btn btn-primary" href="{{ url_for('projects_edit', project_id=project.project_id) }}">Edit</a>
+      <form method="post" action="{{ url_for('projects_delete', project_id=project.project_id) }}">
+        <button class="btn btn-outline-danger" type="submit">Delete</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="row g-4 mb-4">
+    <div class="col-md-7">
+      <div class="bg-white border rounded p-4 h-100">
+        <h2 class="h5 mb-3">Project Information</h2>
+        <dl class="row mb-0">
+          <dt class="col-sm-4">Project ID</dt>
+          <dd class="col-sm-8">{{ project.project_id }}</dd>
+          <dt class="col-sm-4">Project Name</dt>
+          <dd class="col-sm-8">{{ project.project_name }}</dd>
+          <dt class="col-sm-4">Status</dt>
+          <dd class="col-sm-8">{{ project.status }}</dd>
+          <dt class="col-sm-4">Start Date</dt>
+          <dd class="col-sm-8">{{ project.start_date or "Not set" }}</dd>
+          <dt class="col-sm-4">Due Date</dt>
+          <dd class="col-sm-8">{{ project.due_date or "Not set" }}</dd>
+        </dl>
+      </div>
+    </div>
+
+    <div class="col-md-5">
+      <div class="bg-white border rounded p-4 h-100">
+        <h2 class="h5 mb-3">Project Owner</h2>
+        {% if project.owner %}
+          <p class="fw-semibold mb-1">{{ project.owner.full_name }}</p>
+          <p class="text-muted mb-3">{{ project.owner.email }}</p>
+          <a class="btn btn-sm btn-outline-primary" href="{{ url_for('users_detail', user_id=project.owner.user_id) }}">View Owner</a>
+        {% else %}
+          <p class="text-muted mb-0">No owner is assigned.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <section>
+    <h2 class="h4 mb-3">Project Tasks</h2>
+    {% if project.tasks %}
+      <div class="table-responsive bg-white border rounded">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th scope="col">Task</th>
+              <th scope="col">Assigned User</th>
+              <th scope="col">Priority</th>
+              <th scope="col">Status</th>
+              <th scope="col">Estimated Hours</th>
+              <th scope="col">Actual Hours</th>
+              <th scope="col">Due Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for task in project.tasks %}
+              <tr>
+                <td>{{ task.task_name }}</td>
+                <td>{{ task.assigned_user.full_name if task.assigned_user else "Not assigned" }}</td>
+                <td>{{ task.priority }}</td>
+                <td>{{ task.status }}</td>
+                <td>{{ task.estimated_hours }}</td>
+                <td>{{ task.actual_hours }}</td>
+                <td>{{ task.due_date or "Not set" }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="bg-white border rounded p-4 text-muted">This project does not have any tasks yet.</div>
+    {% endif %}
+  </section>
+{% endblock %}

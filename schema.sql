@@ -17,7 +17,7 @@ CREATE TABLE projects (
     project_id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
     project_name VARCHAR(150) NOT NULL,
-    status VARCHAR(30) NOT NULL DEFAULT 'Planning',
+    status VARCHAR(30) NOT NULL DEFAULT 'Not Started',
     start_date DATE,
     due_date DATE,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
