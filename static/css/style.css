@@ -1,0 +1,12 @@
+body {
+  background-color: #f6f8fb;
+}
+
+.welcome-section {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.welcome-section .alert {
+  max-width: 420px;
+}
