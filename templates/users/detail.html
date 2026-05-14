@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block title %}{{ user.full_name }} - Project Management App{% endblock %}
+
+{% block content %}
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h1 class="h2 mb-1">{{ user.full_name }}</h1>
+      <p class="text-muted mb-0">{{ user.email }}</p>
+    </div>
+    <div class="d-flex gap-2">
+      <a class="btn btn-outline-secondary" href="{{ url_for('users_list') }}">Back</a>
+      <a class="btn btn-primary" href="{{ url_for('users_edit', user_id=user.user_id) }}">Edit</a>
+      <form method="post" action="{{ url_for('users_delete', user_id=user.user_id) }}">
+        <button class="btn btn-outline-danger" type="submit">Delete</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="row g-4 mb-4">
+    <div class="col-md-6">
+      <div class="bg-white border rounded p-4 h-100">
+        <h2 class="h5 mb-3">User Information</h2>
+        <dl class="row mb-0">
+          <dt class="col-sm-4">User ID</dt>
+          <dd class="col-sm-8">{{ user.user_id }}</dd>
+          <dt class="col-sm-4">Full Name</dt>
+          <dd class="col-sm-8">{{ user.full_name }}</dd>
+          <dt class="col-sm-4">Email</dt>
+          <dd class="col-sm-8">{{ user.email }}</dd>
+          <dt class="col-sm-4">Created</dt>
+          <dd class="col-sm-8">{{ user.created_at.strftime("%Y-%m-%d") if user.created_at else "Not available" }}</dd>
+        </dl>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="bg-white border rounded p-4 h-100">
+        <h2 class="h5 mb-3">Summary</h2>
+        <div class="row text-center">
+          <div class="col">
+            <div class="display-6 fw-semibold">{{ user.projects|length }}</div>
+            <div class="text-muted">Projects</div>
+          </div>
+          <div class="col">
+            <div class="display-6 fw-semibold">{{ user.assigned_tasks|length }}</div>
+            <div class="text-muted">Assigned Tasks</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <section class="mb-4">
+    <h2 class="h4 mb-3">Projects Owned</h2>
+    {% if user.projects %}
+      <div class="table-responsive bg-white border rounded">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th scope="col">Project</th>
+              <th scope="col">Status</th>
+              <th scope="col">Start Date</th>
+              <th scope="col">Due Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for project in user.projects %}
+              <tr>
+                <td>{{ project.project_name }}</td>
+                <td>{{ project.status }}</td>
+                <td>{{ project.start_date or "Not set" }}</td>
+                <td>{{ project.due_date or "Not set" }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="bg-white border rounded p-4 text-muted">This user does not own any projects yet.</div>
+    {% endif %}
+  </section>
+
+  <section>
+    <h2 class="h4 mb-3">Assigned Tasks</h2>
+    {% if user.assigned_tasks %}
+      <div class="table-responsive bg-white border rounded">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th scope="col">Task</th>
+              <th scope="col">Project</th>
+              <th scope="col">Priority</th>
+              <th scope="col">Status</th>
+              <th scope="col">Due Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for task in user.assigned_tasks %}
+              <tr>
+                <td>{{ task.task_name }}</td>
+                <td>{{ task.project.project_name if task.project else "Not assigned" }}</td>
+                <td>{{ task.priority }}</td>
+                <td>{{ task.status }}</td>
+                <td>{{ task.due_date or "Not set" }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="bg-white border rounded p-4 text-muted">This user has no assigned tasks yet.</div>
+    {% endif %}
+  </section>
+{% endblock %}

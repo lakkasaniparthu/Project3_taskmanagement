@@ -22,11 +22,13 @@ class User(db.Model):
         "Project",
         back_populates="owner",
         cascade="all, delete-orphan",
+        passive_deletes=True,
     )
     assigned_tasks = db.relationship(
         "Task",
         back_populates="assigned_user",
         foreign_keys="Task.assigned_user_id",
+        passive_deletes=True,
     )
 
     def __repr__(self):
@@ -37,7 +39,11 @@ class Project(db.Model):
     __tablename__ = "projects"
 
     project_id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("users.user_id"), nullable=False)
+    user_id = db.Column(
+        db.Integer,
+        db.ForeignKey("users.user_id", ondelete="CASCADE"),
+        nullable=False,
+    )
     project_name = db.Column(db.String(150), nullable=False)
     status = db.Column(db.String(30), nullable=False, default="Planning")
     start_date = db.Column(db.Date)
@@ -55,6 +61,7 @@ class Project(db.Model):
         "Task",
         back_populates="project",
         cascade="all, delete-orphan",
+        passive_deletes=True,
     )
 
     def __repr__(self):
@@ -65,8 +72,16 @@ class Task(db.Model):
     __tablename__ = "tasks"
 
     task_id = db.Column(db.Integer, primary_key=True)
-    project_id = db.Column(db.Integer, db.ForeignKey("projects.project_id"), nullable=False)
-    assigned_user_id = db.Column(db.Integer, db.ForeignKey("users.user_id"), nullable=False)
+    project_id = db.Column(
+        db.Integer,
+        db.ForeignKey("projects.project_id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    assigned_user_id = db.Column(
+        db.Integer,
+        db.ForeignKey("users.user_id", ondelete="CASCADE"),
+        nullable=False,
+    )
     task_name = db.Column(db.String(150), nullable=False)
     priority = db.Column(db.String(20), nullable=False, default="Medium")
     status = db.Column(db.String(30), nullable=False, default="To Do")
