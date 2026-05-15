@@ -3,7 +3,7 @@ from datetime import datetime
 from decimal import Decimal, InvalidOperation
 
 from flask import Flask, flash, redirect, render_template, request, url_for
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
 from config import Config
 from models import Project, Task, User, db
@@ -68,6 +68,47 @@ def validate_project_form(project_name, status, user_id, start_date, due_date):
     return errors
 
 
+def validate_first_task_form(
+    task_name,
+    assigned_user_id,
+    priority,
+    status,
+    estimated_hours,
+    actual_hours,
+    created_date,
+    due_date,
+):
+    errors = []
+
+    if not task_name:
+        errors.append("Task name cannot be empty.")
+
+    if not assigned_user_id:
+        errors.append("Each task must be assigned to a user.")
+    elif not User.query.get(assigned_user_id):
+        errors.append("Selected assigned user does not exist.")
+
+    if priority not in TASK_PRIORITIES:
+        errors.append("Priority must be Low, Medium, or High.")
+
+    if status not in TASK_STATUSES:
+        errors.append("Status must be Not Started, In Progress, or Completed.")
+
+    if estimated_hours < 0:
+        errors.append("Estimated hours cannot be negative.")
+
+    if actual_hours < 0:
+        errors.append("Actual hours cannot be negative.")
+
+    if not created_date:
+        errors.append("Created date is required.")
+
+    if created_date and due_date and due_date < created_date:
+        errors.append("Due date cannot be earlier than created date.")
+
+    return errors
+
+
 def validate_task_form(
     task_name,
     project_id,
@@ -121,9 +162,63 @@ def create_app():
 
     db.init_app(app)
 
+    @app.errorhandler(SQLAlchemyError)
+    def handle_database_error(error):
+        db.session.rollback()
+        return (
+            render_template(
+                "database_error.html",
+                db_host=app.config["DB_HOST"],
+                db_port=app.config["DB_PORT"],
+                db_name=app.config["DB_NAME"],
+                db_charset=app.config["DB_CHARSET"],
+                error_message=str(error.__cause__ or error),
+            ),
+            503,
+        )
+
     @app.route("/")
     def home():
         return render_template("index.html")
+
+    @app.route("/dashboard")
+    def dashboard():
+        total_users = db.session.query(db.func.count(User.user_id)).scalar()
+        total_projects = db.session.query(db.func.count(Project.project_id)).scalar()
+        total_tasks = db.session.query(db.func.count(Task.task_id)).scalar()
+
+        hours_summary = db.session.query(
+            db.func.avg(Task.estimated_hours),
+            db.func.avg(Task.actual_hours),
+            db.func.sum(Task.estimated_hours),
+            db.func.sum(Task.actual_hours),
+        ).one()
+
+        tasks_by_status = (
+            db.session.query(Task.status, db.func.count(Task.task_id))
+            .group_by(Task.status)
+            .order_by(Task.status)
+            .all()
+        )
+        projects_by_status = (
+            db.session.query(Project.status, db.func.count(Project.project_id))
+            .group_by(Project.status)
+            .order_by(Project.status)
+            .all()
+        )
+
+        return render_template(
+            "dashboard.html",
+            total_users=total_users,
+            total_projects=total_projects,
+            total_tasks=total_tasks,
+            average_estimated_hours=hours_summary[0] or 0,
+            average_actual_hours=hours_summary[1] or 0,
+            total_estimated_hours=hours_summary[2] or 0,
+            total_actual_hours=hours_summary[3] or 0,
+            tasks_by_status=tasks_by_status,
+            projects_by_status=projects_by_status,
+        )
 
     @app.route("/users")
     def users_list():
@@ -316,6 +411,165 @@ def create_app():
     def projects_detail(project_id):
         project = Project.query.get_or_404(project_id)
         return render_template("projects/detail.html", project=project)
+
+    @app.route("/projects/create-with-task", methods=["GET", "POST"])
+    def projects_create_with_task():
+        users = User.query.order_by(User.full_name).all()
+
+        if not users:
+            flash("Add a user before creating a project with a task.", "warning")
+            return redirect(url_for("users_create"))
+
+        if request.method == "POST":
+            project_name = request.form.get("project_name", "").strip()
+            project_status = request.form.get("project_status", "")
+            project_owner_id = request.form.get("project_owner_id", type=int)
+            project_start_date_text = request.form.get("project_start_date", "")
+            project_due_date_text = request.form.get("project_due_date", "")
+            task_name = request.form.get("task_name", "").strip()
+            assigned_user_id = request.form.get("assigned_user_id", type=int)
+            task_priority = request.form.get("task_priority", "")
+            task_status = request.form.get("task_status", "")
+            estimated_hours_text = request.form.get("estimated_hours", "")
+            actual_hours_text = request.form.get("actual_hours", "")
+            task_created_date_text = request.form.get("task_created_date", "")
+            task_due_date_text = request.form.get("task_due_date", "")
+
+            try:
+                project_start_date = parse_date(project_start_date_text)
+                project_due_date = parse_date(project_due_date_text)
+                estimated_hours = parse_hours(estimated_hours_text)
+                actual_hours = parse_hours(actual_hours_text)
+                task_created_date = parse_date(task_created_date_text)
+                task_due_date = parse_date(task_due_date_text)
+                errors = validate_project_form(
+                    project_name,
+                    project_status,
+                    project_owner_id,
+                    project_start_date,
+                    project_due_date,
+                )
+                errors.extend(
+                    validate_first_task_form(
+                        task_name,
+                        assigned_user_id,
+                        task_priority,
+                        task_status,
+                        estimated_hours,
+                        actual_hours,
+                        task_created_date,
+                        task_due_date,
+                    )
+                )
+            except (InvalidOperation, ValueError):
+                project_start_date = None
+                project_due_date = None
+                estimated_hours = Decimal("0")
+                actual_hours = Decimal("0")
+                task_created_date = None
+                task_due_date = None
+                errors = ["Hours must be valid numbers and dates must use the YYYY-MM-DD format."]
+
+            if errors:
+                for error in errors:
+                    flash(error, "danger")
+                return render_template(
+                    "projects/create_with_task.html",
+                    users=users,
+                    project_statuses=PROJECT_STATUSES,
+                    task_priorities=TASK_PRIORITIES,
+                    task_statuses=TASK_STATUSES,
+                    project_name=project_name,
+                    project_status=project_status,
+                    project_owner_id=project_owner_id,
+                    project_start_date=project_start_date_text,
+                    project_due_date=project_due_date_text,
+                    task_name=task_name,
+                    assigned_user_id=assigned_user_id,
+                    task_priority=task_priority,
+                    task_status=task_status,
+                    estimated_hours=estimated_hours_text,
+                    actual_hours=actual_hours_text,
+                    task_created_date=task_created_date_text,
+                    task_due_date=task_due_date_text,
+                )
+
+            try:
+                # These two inserts share one transaction. Nothing is saved until commit succeeds.
+                project = Project(
+                    project_name=project_name,
+                    status=project_status,
+                    user_id=project_owner_id,
+                    start_date=project_start_date,
+                    due_date=project_due_date,
+                )
+                db.session.add(project)
+
+                # Flush gives the new project an ID so the task can point to it.
+                db.session.flush()
+
+                task = Task(
+                    project_id=project.project_id,
+                    assigned_user_id=assigned_user_id,
+                    task_name=task_name,
+                    priority=task_priority,
+                    status=task_status,
+                    estimated_hours=estimated_hours,
+                    actual_hours=actual_hours,
+                    created_date=task_created_date,
+                    due_date=task_due_date,
+                )
+                db.session.add(task)
+                db.session.commit()
+            except SQLAlchemyError:
+                # If either insert fails, rollback removes both pending changes.
+                db.session.rollback()
+                flash("Project and task were not saved because the transaction failed.", "danger")
+                return render_template(
+                    "projects/create_with_task.html",
+                    users=users,
+                    project_statuses=PROJECT_STATUSES,
+                    task_priorities=TASK_PRIORITIES,
+                    task_statuses=TASK_STATUSES,
+                    project_name=project_name,
+                    project_status=project_status,
+                    project_owner_id=project_owner_id,
+                    project_start_date=project_start_date_text,
+                    project_due_date=project_due_date_text,
+                    task_name=task_name,
+                    assigned_user_id=assigned_user_id,
+                    task_priority=task_priority,
+                    task_status=task_status,
+                    estimated_hours=estimated_hours_text,
+                    actual_hours=actual_hours_text,
+                    task_created_date=task_created_date_text,
+                    task_due_date=task_due_date_text,
+                )
+
+            flash("Project and first task created successfully.", "success")
+            return redirect(url_for("projects_detail", project_id=project.project_id))
+
+        today = datetime.today().date().isoformat()
+        return render_template(
+            "projects/create_with_task.html",
+            users=users,
+            project_statuses=PROJECT_STATUSES,
+            task_priorities=TASK_PRIORITIES,
+            task_statuses=TASK_STATUSES,
+            project_name="",
+            project_status="Not Started",
+            project_owner_id=users[0].user_id,
+            project_start_date=today,
+            project_due_date="",
+            task_name="",
+            assigned_user_id=users[0].user_id,
+            task_priority="Medium",
+            task_status="Not Started",
+            estimated_hours="0",
+            actual_hours="0",
+            task_created_date=today,
+            task_due_date="",
+        )
 
     @app.route("/projects/<int:project_id>/edit", methods=["GET", "POST"])
     def projects_edit(project_id):

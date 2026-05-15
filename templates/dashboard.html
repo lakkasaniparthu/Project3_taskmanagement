@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Project Management App{% endblock %}
+
+{% block content %}
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h1 class="h2 mb-1">Dashboard</h1>
+      <p class="text-muted mb-0">High-level project and task summary.</p>
+    </div>
+    <a class="btn btn-primary" href="{{ url_for('projects_create_with_task') }}">Create Project With First Task</a>
+  </div>
+
+  <div class="row g-3 mb-4">
+    <div class="col-md-4">
+      <div class="bg-white border rounded p-4 h-100">
+        <p class="text-muted mb-1">Total Users</p>
+        <div class="display-6 fw-semibold">{{ total_users }}</div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="bg-white border rounded p-4 h-100">
+        <p class="text-muted mb-1">Total Projects</p>
+        <div class="display-6 fw-semibold">{{ total_projects }}</div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="bg-white border rounded p-4 h-100">
+        <p class="text-muted mb-1">Total Tasks</p>
+        <div class="display-6 fw-semibold">{{ total_tasks }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-4">
+    <div class="col-md-6 col-lg-3">
+      <div class="bg-white border rounded p-4 h-100">
+        <p class="text-muted mb-1">Average Estimated Hours</p>
+        <div class="h3 mb-0">{{ "%.2f"|format(average_estimated_hours) }}</div>
+      </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+      <div class="bg-white border rounded p-4 h-100">
+        <p class="text-muted mb-1">Average Actual Hours</p>
+        <div class="h3 mb-0">{{ "%.2f"|format(average_actual_hours) }}</div>
+      </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+      <div class="bg-white border rounded p-4 h-100">
+        <p class="text-muted mb-1">Total Estimated Hours</p>
+        <div class="h3 mb-0">{{ "%.2f"|format(total_estimated_hours) }}</div>
+      </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+      <div class="bg-white border rounded p-4 h-100">
+        <p class="text-muted mb-1">Total Actual Hours</p>
+        <div class="h3 mb-0">{{ "%.2f"|format(total_actual_hours) }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-lg-6">
+      <h2 class="h4 mb-3">Tasks By Status</h2>
+      <div class="table-responsive bg-white border rounded">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th scope="col">Status</th>
+              <th scope="col">Tasks</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for status, count in tasks_by_status %}
+              <tr>
+                <td>{{ status }}</td>
+                <td>{{ count }}</td>
+              </tr>
+            {% else %}
+              <tr>
+                <td colspan="2" class="text-muted">No tasks found.</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <h2 class="h4 mb-3">Projects By Status</h2>
+      <div class="table-responsive bg-white border rounded">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th scope="col">Status</th>
+              <th scope="col">Projects</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for status, count in projects_by_status %}
+              <tr>
+                <td>{{ status }}</td>
+                <td>{{ count }}</td>
+              </tr>
+            {% else %}
+              <tr>
+                <td colspan="2" class="text-muted">No projects found.</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+{% endblock %}

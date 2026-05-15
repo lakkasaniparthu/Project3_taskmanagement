@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}Database Connection Error - Project Management App{% endblock %}
+
+{% block content %}
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="bg-white border rounded p-4">
+        <h1 class="h3 mb-3">Database connection error</h1>
+        <p class="mb-3">
+          The Flask app is running, but it cannot connect to the MySQL database right now.
+        </p>
+
+        <div class="alert alert-warning" role="alert">
+          Check that MySQL is installed, running, and that the database has been created.
+        </div>
+
+        <h2 class="h5 mt-4">Current database settings</h2>
+        <table class="table table-sm">
+          <tbody>
+            <tr>
+              <th scope="row">Host</th>
+              <td>{{ db_host }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Port</th>
+              <td>{{ db_port }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Database</th>
+              <td>{{ db_name }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Charset</th>
+              <td>{{ db_charset }}</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h2 class="h5 mt-4">Error details</h2>
+        <pre class="bg-light border rounded p-3 mb-0">{{ error_message }}</pre>
+      </div>
+    </div>
+  </div>
+{% endblock %}
