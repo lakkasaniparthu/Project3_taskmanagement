@@ -21,8 +21,8 @@ INSERT INTO tasks (
     created_date,
     due_date
 ) VALUES
-(1, 1, 'Create homepage wireframe', 'High', 'Done', 6.00, 5.50, '2026-05-02', '2026-05-06'),
+(1, 1, 'Create homepage wireframe', 'High', 'Completed', 6.00, 5.50, '2026-05-02', '2026-05-06'),
 (1, 2, 'Build Bootstrap layout', 'High', 'In Progress', 8.00, 3.00, '2026-05-05', '2026-05-14'),
-(2, 3, 'Draft project requirements', 'Medium', 'To Do', 4.00, 0.00, '2026-05-10', '2026-05-22'),
+(2, 3, 'Draft project requirements', 'Medium', 'Not Started', 4.00, 0.00, '2026-05-10', '2026-05-22'),
 (3, 2, 'Prepare launch checklist', 'Medium', 'In Progress', 5.00, 2.00, '2026-05-01', '2026-05-25'),
-(3, 3, 'Test login flow', 'High', 'To Do', 7.00, 0.00, '2026-05-08', '2026-05-28');
+(3, 3, 'Test login flow', 'High', 'Not Started', 7.00, 0.00, '2026-05-08', '2026-05-28');

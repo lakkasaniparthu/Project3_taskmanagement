@@ -33,7 +33,7 @@ CREATE TABLE tasks (
     assigned_user_id INT NOT NULL,
     task_name VARCHAR(150) NOT NULL,
     priority VARCHAR(20) NOT NULL DEFAULT 'Medium',
-    status VARCHAR(30) NOT NULL DEFAULT 'To Do',
+    status VARCHAR(30) NOT NULL DEFAULT 'Not Started',
     estimated_hours DECIMAL(6, 2) NOT NULL DEFAULT 0,
     actual_hours DECIMAL(6, 2) NOT NULL DEFAULT 0,
     created_date DATE NOT NULL DEFAULT (CURRENT_DATE),

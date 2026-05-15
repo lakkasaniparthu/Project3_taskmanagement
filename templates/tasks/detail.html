@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}{{ task.task_name }} - Project Management App{% endblock %}
+
+{% block content %}
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h1 class="h2 mb-1">{{ task.task_name }}</h1>
+      <p class="text-muted mb-0">{{ task.status }}</p>
+    </div>
+    <div class="d-flex gap-2">
+      <a class="btn btn-outline-secondary" href="{{ url_for('tasks_list') }}">Back</a>
+      <a class="btn btn-primary" href="{{ url_for('tasks_edit', task_id=task.task_id) }}">Edit</a>
+      <form method="post" action="{{ url_for('tasks_delete', task_id=task.task_id) }}">
+        <button class="btn btn-outline-danger" type="submit">Delete</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="row g-4 mb-4">
+    <div class="col-lg-7">
+      <div class="bg-white border rounded p-4 h-100">
+        <h2 class="h5 mb-3">Task Information</h2>
+        <dl class="row mb-0">
+          <dt class="col-sm-4">Task ID</dt>
+          <dd class="col-sm-8">{{ task.task_id }}</dd>
+          <dt class="col-sm-4">Task Name</dt>
+          <dd class="col-sm-8">{{ task.task_name }}</dd>
+          <dt class="col-sm-4">Priority</dt>
+          <dd class="col-sm-8">{{ task.priority }}</dd>
+          <dt class="col-sm-4">Status</dt>
+          <dd class="col-sm-8">{{ task.status }}</dd>
+          <dt class="col-sm-4">Estimated Hours</dt>
+          <dd class="col-sm-8">{{ task.estimated_hours }}</dd>
+          <dt class="col-sm-4">Actual Hours</dt>
+          <dd class="col-sm-8">{{ task.actual_hours }}</dd>
+          <dt class="col-sm-4">Created Date</dt>
+          <dd class="col-sm-8">{{ task.created_date or "Not set" }}</dd>
+          <dt class="col-sm-4">Due Date</dt>
+          <dd class="col-sm-8">{{ task.due_date or "Not set" }}</dd>
+        </dl>
+      </div>
+    </div>
+
+    <div class="col-lg-5">
+      <div class="bg-white border rounded p-4 mb-4">
+        <h2 class="h5 mb-3">Project</h2>
+        {% if task.project %}
+          <p class="fw-semibold mb-1">{{ task.project.project_name }}</p>
+          <p class="text-muted mb-3">{{ task.project.status }}</p>
+          <a class="btn btn-sm btn-outline-primary" href="{{ url_for('projects_detail', project_id=task.project.project_id) }}">View Project</a>
+        {% else %}
+          <p class="text-muted mb-0">No project is assigned.</p>
+        {% endif %}
+      </div>
+
+      <div class="bg-white border rounded p-4">
+        <h2 class="h5 mb-3">Assigned User</h2>
+        {% if task.assigned_user %}
+          <p class="fw-semibold mb-1">{{ task.assigned_user.full_name }}</p>
+          <p class="text-muted mb-3">{{ task.assigned_user.email }}</p>
+          <a class="btn btn-sm btn-outline-primary" href="{{ url_for('users_detail', user_id=task.assigned_user.user_id) }}">View User</a>
+        {% else %}
+          <p class="text-muted mb-0">No user is assigned.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+{% endblock %}

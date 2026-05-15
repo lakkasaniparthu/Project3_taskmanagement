@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}Tasks - Project Management App{% endblock %}
+
+{% block content %}
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h1 class="h2 mb-1">Tasks</h1>
+      <p class="text-muted mb-0">Manage task assignments, priorities, schedules, and hours.</p>
+    </div>
+    <a class="btn btn-primary" href="{{ url_for('tasks_create') }}">Add Task</a>
+  </div>
+
+  {% if tasks %}
+    <div class="table-responsive bg-white border rounded">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th scope="col">Task</th>
+            <th scope="col">Project</th>
+            <th scope="col">Assigned User</th>
+            <th scope="col">Priority</th>
+            <th scope="col">Status</th>
+            <th scope="col">Due Date</th>
+            <th scope="col" class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for task in tasks %}
+            <tr>
+              <td>
+                <a href="{{ url_for('tasks_detail', task_id=task.task_id) }}" class="fw-semibold text-decoration-none">
+                  {{ task.task_name }}
+                </a>
+              </td>
+              <td>{{ task.project.project_name if task.project else "No project" }}</td>
+              <td>{{ task.assigned_user.full_name if task.assigned_user else "No user" }}</td>
+              <td>{{ task.priority }}</td>
+              <td>{{ task.status }}</td>
+              <td>{{ task.due_date or "Not set" }}</td>
+              <td class="text-end">
+                <a class="btn btn-sm btn-outline-primary" href="{{ url_for('tasks_detail', task_id=task.task_id) }}">View</a>
+                <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('tasks_edit', task_id=task.task_id) }}">Edit</a>
+                <form class="d-inline" method="post" action="{{ url_for('tasks_delete', task_id=task.task_id) }}">
+                  <button class="btn btn-sm btn-outline-danger" type="submit">Delete</button>
+                </form>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="text-center bg-white border rounded p-5">
+      <h2 class="h4">No tasks yet</h2>
+      <p class="text-muted">Add your first task after creating at least one project and user.</p>
+      <a class="btn btn-primary" href="{{ url_for('tasks_create') }}">Add Task</a>
+    </div>
+  {% endif %}
+{% endblock %}

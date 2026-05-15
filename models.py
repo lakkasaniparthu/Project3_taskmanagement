@@ -84,7 +84,7 @@ class Task(db.Model):
     )
     task_name = db.Column(db.String(150), nullable=False)
     priority = db.Column(db.String(20), nullable=False, default="Medium")
-    status = db.Column(db.String(30), nullable=False, default="To Do")
+    status = db.Column(db.String(30), nullable=False, default="Not Started")
     estimated_hours = db.Column(db.Numeric(6, 2), nullable=False, default=0)
     actual_hours = db.Column(db.Numeric(6, 2), nullable=False, default=0)
     created_date = db.Column(db.Date, nullable=False, server_default=db.text("(CURRENT_DATE)"))
