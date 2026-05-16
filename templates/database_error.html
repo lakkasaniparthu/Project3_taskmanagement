@@ -39,6 +39,14 @@
 
         <h2 class="h5 mt-4">Error details</h2>
         <pre class="bg-light border rounded p-3 mb-0">{{ error_message }}</pre>
+
+        <h2 class="h5 mt-4">Common fix</h2>
+        <p class="mb-2">
+          If the error says <code>using password: NO</code>, Flask was started without a MySQL password.
+        </p>
+        <p class="mb-0">
+          Stop the Flask app, set <code>DB_PASSWORD</code> in PowerShell, and start Flask again.
+        </p>
       </div>
     </div>
   </div>

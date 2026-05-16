@@ -10,3 +10,33 @@ body {
 .welcome-section .alert {
   max-width: 420px;
 }
+
+.emoji-badge,
+.metric-icon {
+  align-items: center;
+  background-color: #e8f1ff;
+  border: 1px solid #cfe2ff;
+  border-radius: 50%;
+  display: inline-flex;
+  height: 48px;
+  justify-content: center;
+  width: 48px;
+}
+
+.emoji-badge {
+  font-size: 1.8rem;
+}
+
+.metric-icon {
+  font-size: 1.35rem;
+  margin-bottom: 0.75rem;
+}
+
+.dashboard-card {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.dashboard-card:hover {
+  box-shadow: 0 0.75rem 1.5rem rgba(15, 23, 42, 0.08);
+  transform: translateY(-2px);
+}

@@ -5,10 +5,10 @@
 {% block content %}
   <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
-      <h1 class="h2 mb-1">Tasks</h1>
+      <h1 class="h2 mb-1">✅ Tasks</h1>
       <p class="text-muted mb-0">Manage task assignments, priorities, schedules, and hours.</p>
     </div>
-    <a class="btn btn-primary" href="{{ url_for('tasks_create') }}">Add Task</a>
+    <a class="btn btn-primary" href="{{ url_for('tasks_create') }}">➕ Add Task</a>
   </div>
 
   {% if tasks %}
@@ -52,9 +52,9 @@
     </div>
   {% else %}
     <div class="text-center bg-white border rounded p-5">
-      <h2 class="h4">No tasks yet</h2>
+      <h2 class="h4">✅ No tasks yet</h2>
       <p class="text-muted">Add your first task after creating at least one project and user.</p>
-      <a class="btn btn-primary" href="{{ url_for('tasks_create') }}">Add Task</a>
+      <a class="btn btn-primary" href="{{ url_for('tasks_create') }}">➕ Add Task</a>
     </div>
   {% endif %}
 {% endblock %}
